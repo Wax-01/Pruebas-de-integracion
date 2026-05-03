@@ -72,4 +72,32 @@ public class RegistryWithMockTest {
         assertEquals(RegisterResult.DUPLICATED, result);
         verify(repo, never()).save(anyInt(), anyString(), anyInt(), anyBoolean());
     }
+
+    @Test
+    public void shouldRegisterValidPersonAndCallSave() throws Exception {
+        // Arrange
+        when(repo.existsById(8)).thenReturn(false);
+        Person p = new Person("Carlos", 8, 30, Gender.MALE, true);
+
+        // Act
+        RegisterResult result = registry.registerVoter(p);
+
+        // Assert
+        assertEquals(RegisterResult.VALID, result);
+        verify(repo).save(8, "Carlos", 30, true);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldHandleDatabaseException() throws Exception {
+        // Arrange
+        when(repo.existsById(9)).thenReturn(false);
+        doThrow(new RuntimeException("Database error")).when(repo).save(anyInt(), anyString(), anyInt(), anyBoolean());
+        Person p = new Person("Luis", 9, 40, Gender.MALE, true);
+
+        // Act
+        registry.registerVoter(p);
+        
+        // Assert
+        // The test expects IllegalStateException due to the annotation @Test(expected = ...)
+    }
 }

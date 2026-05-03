@@ -1,10 +1,24 @@
 package edu.unisabana.tyvs.registry.domain.model.rq;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+
 public class PersonDTO {
+    @NotBlank(message = "Name cannot be blank")
     private String name;
+
+    @Positive(message = "ID must be a positive number")
     private int id;
+
+    @Min(value = 0, message = "Age cannot be negative")
     private int age;
+
+    @NotBlank(message = "Gender cannot be blank")
     private String gender;
+
+    @NotNull(message = "Alive status must be specified")
     private boolean alive;
 
     public PersonDTO() {

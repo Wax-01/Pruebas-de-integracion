@@ -6,8 +6,12 @@ import edu.unisabana.tyvs.registry.domain.model.Gender;
 import edu.unisabana.tyvs.registry.domain.model.Person;
 import edu.unisabana.tyvs.registry.domain.model.RegisterResult;
 import edu.unisabana.tyvs.registry.domain.model.rq.PersonDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/register")
@@ -21,10 +25,16 @@ public class RegistryController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
-    public String register(@RequestBody PersonDTO dto) {
+    public String register(@Valid @RequestBody PersonDTO dto) {
         Person p = new Person(dto.getName(), dto.getId(), dto.getAge(),
                 Gender.valueOf(dto.getGender()), dto.isAlive());
         RegisterResult r = registry.registerVoter(p);   
         return r.name();
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        return ResponseEntity.badRequest().body("INVALID_REQUEST_DATA");
     }
 }

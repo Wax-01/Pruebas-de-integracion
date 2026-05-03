@@ -87,4 +87,43 @@ public class RegistryTest {
         // Assert segundo registro
         assertEquals(RegisterResult.DUPLICATED, result2);
     }
+
+    @Test
+    public void shouldReturnUnderageWhenAgeIsLessThan18() throws Exception {
+        // Arrange
+        Person p = new Person("Juan", 101, 17, Gender.MALE, true);
+
+        // Act
+        RegisterResult result = registry.registerVoter(p);
+
+        // Assert
+        assertEquals(RegisterResult.UNDERAGE, result);
+        assertFalse(repo.existsById(101));
+    }
+
+    @Test
+    public void shouldReturnDeadWhenPersonIsNotAlive() throws Exception {
+        // Arrange
+        Person p = new Person("Pedro", 102, 50, Gender.MALE, false);
+
+        // Act
+        RegisterResult result = registry.registerVoter(p);
+
+        // Assert
+        assertEquals(RegisterResult.DEAD, result);
+        assertFalse(repo.existsById(102));
+    }
+
+    @Test
+    public void shouldReturnInvalidWhenIdIsZeroOrNegative() throws Exception {
+        // Arrange
+        Person p = new Person("Maria", -1, 30, Gender.FEMALE, true);
+
+        // Act
+        RegisterResult result = registry.registerVoter(p);
+
+        // Assert
+        assertEquals(RegisterResult.INVALID, result);
+        assertFalse(repo.existsById(-1));
+    }
 }

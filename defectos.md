@@ -95,6 +95,23 @@ when(repo.existsById(7)).thenReturn(true);
 
 ---
 
+### Defecto 06 — Excepción SQL no manejada correctamente *(Simulado)*
+
+- **Capa afectada:** Application / Delivery
+- **Caso de prueba:** Falla en la base de datos al momento de guardar (ej. error de conexión H2).
+- **Entrada:** `Person(name="Carlos", id=8, age=30, gender=MALE, alive=true)` con BD caída.
+- **Resultado esperado:** HTTP 500 con mensaje JSON amigable indicando "Error interno del servidor".
+- **Resultado obtenido:** `IllegalStateException` arrojada cruda con stacktrace expuesto al usuario.
+- **Causa probable:** Falta de un `@ExceptionHandler(IllegalStateException.class)` global o un manejo de `try/catch` que retorne una respuesta controlada en el REST Controller.
+- **Estado:** Cerrado (Identificado con Mocks)
+- **Evidencia:** 
+```log
+java.lang.IllegalStateException: Persistencia: RuntimeException - Database error
+	at edu.unisabana.tyvs.registry.application.usecase.Registry.registerVoter(Registry.java:42)
+```
+
+---
+
 ## Formato 2: Tabla de defectos (bug tracking)
 
 | ID | Caso de Prueba | Capa | Resultado Esperado | Resultado Obtenido | Tipo | Estado | Prioridad |
@@ -104,6 +121,7 @@ when(repo.existsById(7)).thenReturn(true);
 | 03 | Duplicado por ID | Infraestructura | `DUPLICATED` | `VALID` | Integración | Abierto | Alta |
 | 04 | Mock mal configurado | Aplicación | `DUPLICATED` | `NullPointerException` | Integración (mock) | En progreso | Media |
 | 05 | Error HTTP 500 | Delivery | `HTTP 400` | `HTTP 500` | Sistema (REST) | Abierto | Alta |
+| 06 | Excepción BD no manejada | Application | `HTTP 500 JSON` | `IllegalStateException` | Integración | Cerrado | Alta |
 
 ---
 
